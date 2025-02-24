@@ -6,7 +6,7 @@ topk_selectors              partially done
 distances.rs                partially done
 inverted_index.rs           
 lib.rs                      
-quantized_summary.rs        
+quantized_summary.rs        partially done
 space_usage.rs              partially done 
 sparse_dataset.rs           partially done
 topk_selectors.rs           partially done   
