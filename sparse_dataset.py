@@ -14,6 +14,7 @@ Conversion between the two representations is straightforward, as both implement
 
 from distances import dot_product_dense_sparse
 from top_k_selector import *
+import bisect
 # import seismic_py
 
 import heapq
@@ -58,6 +59,81 @@ class SparseDataset:
         topk = heapq.nsmallest(k, scores)
         return [(abs(score), idx) for score, idx in topk]
 
+    def iter(self):
+        for i in range(self.len()):
+            # yield i, (self.components[i], self.values[i])
+            yield i, self.get(i)
+    
+    
+    def get_with_offset(self, offset: int, length: int) -> tuple:
+        """
+        Returns components and values for a vector starting at the specified offset with the given length.
+        
+        This method is useful when the offset of the required vector is already known, which can speed up access.
+        It's particularly helpful for inverted index implementations.
+        
+        Args:
+            offset: The starting offset in the components and values arrays
+            length: The number of elements to retrieve
+            
+        Returns:
+            A tuple of (components, values) slices
+            
+        Raises:
+            AssertionError: If offset + length exceeds the size of the components array
+        """
+        assert offset + length <= len(self.components), "The offset is out of range"
+        
+        v_components = self.components[offset:offset + length]
+        v_values = self.values[offset:offset + length]
+        
+        return v_components, v_values
+    
+    
+    
+    
+    def len(self):
+        return self.n_vecs
+    
+    
+    def dim(self):
+        return self.d
+    
+    
+    def nnz(self):
+        return len(self.components)
+    
+    
+    def quantize_f16(self):
+        """Convert values to float16 and return a new SparseDataset instance."""
+        values_f16 = self.values.astype(np.float16)  # Convert values to float16
+        return SparseDataset(self.n_vecs, self.d, self.offsets, self.components, values_f16)
+    
+    
+    def vector_len(self, id: int) -> int:
+        if id >= self.n_vecs:
+                raise IndexError(f"ID {id} out of range for dataset with {self.n_vecs} vectors")
+        return self.offsets[id + 1] - self.offsets[id]
+    
+    
+    def vector_offset(self, id: int) -> int:
+        if id >= self.n_vecs:
+            raise IndexError(f"ID {id} out of range for dataset with {self.n_vecs} vectors")
+        return self.offsets[id]
+    
+    
+    
+    def offset_to_id(self, offset: int) -> int:
+        # Use binary search to find where this offset would be inserted
+        index = bisect.bisect_left(self.offsets, offset)
+        
+        # Check if we found an exact match within valid range
+        if index < len(self.offsets) and self.offsets[index] == offset:
+            # Ensure we don't return the final offset (which is total components count)
+            if index < self.n_vecs:
+                return index
+        raise ValueError(f"Offset {offset} does not start any document")
+    
 class SparseDatasetBuilder:
     """
     Mutable builder for constructing sparse datasets
@@ -84,7 +160,7 @@ class SparseDatasetBuilder:
         self.values.extend(values)
         
         # Update offsets
-        self.offsets.append(len(self.components))
+        self.offsets.append(self.offsets[-1] + len(components))
         self.n_vecs += 1
         
     def build(self):
