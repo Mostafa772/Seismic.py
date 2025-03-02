@@ -1,4 +1,5 @@
 import unittest
+from heapq import heappush, heappushpop, nsmallest
 
 class HeapFaiss:
     def __init__(self, k: int):
@@ -7,6 +8,14 @@ class HeapFaiss:
         self.ids = []  # List to store ids corresponding to distances
         self.timestamp = 0  # Timestamp (not used in the methods directly)
 
+    def __len__(self) -> int:
+        """Returns the number of distances currently in the heap."""
+        return len(self.distances)
+    
+    def len(self) -> int:
+        """Returns the number of distances currently in the heap."""
+        return len(self.distances)
+    
     def add(self, distance: float, id: int):
         """Adds a new distance and its associated id to the heap."""
         self.distances.append(distance)
@@ -58,24 +67,34 @@ class HeapFaiss:
         self.distances[i] = distance
         self.ids[i] = id
                         
-
+    def push_with_id(self, distance: float, doc_id: int) -> None:
+        """Core method for both auto and manual IDs"""
+        if len(self.distances) < self.k:
+            self.add(distance, doc_id)
+        else:
+            if distance < self.top():
+                self.replace_top(distance, doc_id)
+        self.timestamp += 1
+        
+        
     def top(self) -> float:
         """Returns the largest distance (the root of the heap)."""
         return self.distances[0] if self.distances else None
 
-    def len(self) -> int:
-        """Returns the number of distances currently in the heap."""
-        return len(self.distances)
-
     def is_empty(self) -> bool:
         """Checks if the heap is empty."""
         return len(self.distances) == 0
-##################################################################################################################################
-    # def topk(self):
-    #     """Returns the top-k distances sorted by decreasing distance."""
-    #     return sorted(self.distances, reverse=True)
+
+    def topk(self):
+        """Returns the top-k distances sorted by decreasing distance."""
+        pairs = list(zip(self.distances, self.ids))
     
-##################################################################################################################################
+        # Sort pairs by distance (first element of each tuple)
+        sorted_pairs = sorted(pairs, key=lambda x: x[0])
+        
+        return sorted_pairs
+    
+
     
 
 def maintains_heap_property(heap: HeapFaiss) -> bool:
@@ -88,26 +107,31 @@ def maintains_heap_property(heap: HeapFaiss) -> bool:
             return False
     return True
 
-heap = HeapFaiss(3)
-
-heap.add(2.0, 0)
-heap.add(3.0, 1)
-heap.add(4.0, 2)
-
-print(heap.top())  # Should output the top-3 distances, sorted by decreasing order
-
-heap.replace_top(1.0, 3)
-print(heap.top())
-assert maintains_heap_property(heap) > 0, f"It doesn't maintain the heap property"
 
 
+# heap = HeapFaiss(3)
 
-from heapq import heappush, heappushpop, nsmallest
+# heap.add(2.0, 0)
+# heap.add(3.0, 1)
+# heap.add(4.0, 2)
+
+# print(heap.top())  # Should output the top-3 distances, sorted by decreasing order
+
+# heap.replace_top(1.0, 3)
+# print(heap.top())
+# assert maintains_heap_property(heap) > 0, f"It doesn't maintain the heap property"
+
 
 class OnlineTopKSelector(HeapFaiss):
     def __init__(self, k):
         # Call the parent class's constructor
         super().__init__(k)
+        
+    def __len__(self):
+        super().__len__()
+    
+    def len(self):
+        return super().__len__()
 
     def push(self, distance):
         """
