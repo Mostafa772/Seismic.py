@@ -70,7 +70,6 @@ import numpy as np
         
 class QuantizedSummary:
     def __init__(self, dataset, original_dim):
-
         self.n_summaries = len(dataset)
         self.d = original_dim
         self.offsets = [0]
