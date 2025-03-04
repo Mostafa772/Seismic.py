@@ -12,7 +12,6 @@ Python Seismic is a Python reimplementation of the [Seismic library](https://git
 - [Usage](#usage)
 - [Performance Considerations](#performance-considerations)
 - [Contributing](#contributing)
-- [License](#license)
 - [Acknowledgements](#acknowledgements)
 - [Contact](#contact)
 
@@ -59,13 +58,7 @@ Python Seismic is a Python reimplementation of the [Seismic library](https://git
 
 ## Usage
 
-Here’s a quick example to get you started:
-
-```python
-
-```
-
----
+You can find an example in "demo.py". 
 
 ## Performance Considerations
 
@@ -109,8 +102,8 @@ Please follow the coding guidelines and include tests for new features or optimi
 
 For questions, suggestions, or further discussions, please reach out to:
 
-- **Your Name:** [your.email@example.com](mailto:mostafa2222.me@gmail.com)
-- **GitHub:** [yourusername](https://github.com/Mostafa772)
+- **Your Name:** [mostafa2222.me@gmail.com](mailto:mostafa2222.me@gmail.com)
+- **GitHub:** [Mostafa772](https://github.com/Mostafa772)
 
 ---
 
