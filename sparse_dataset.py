@@ -8,22 +8,19 @@ The components are of type `u16`.
 
 A dataset is a collection of sparse vectors. This module provides two representations
 of a sparse dataset:
+In the Rust implementation there are two s
 a mutable [`SparseDatasetMut`] and its immutable counterpart [`SparseDataset`].
-Conversion between the two representations is straightforward, as both implement the [`From`] trait.
 """
 
 from distances import dot_product_dense_sparse
 from top_k_selector import *
 import bisect
-# import seismic_py
 
 import heapq
 import numpy as np
 
 class SparseDataset:
-    """
-    Immutable sparse dataset for efficient storage and querying.
-    """
+
     def __init__(self, offsets, components, values, n_vecs, d):
         self.offsets = np.array(offsets, dtype=np.uint32)
         self.components = np.array(components, dtype=np.uint16)
@@ -31,14 +28,32 @@ class SparseDataset:
         self.n_vecs = n_vecs
         self.d = d  # Dimensionality of the space
 
+
+
     def get(self, idx):
-        """Get components and values for vector at index"""
+        """
+        Get components and values for vector at index
+        
+        Returns:    
+        a tuple containing slices of components and valuesof the sparse vector located at the given index.
+        """
+        
+        assert idx < self.n_vecs, "Index out of range"
+        
         start = self.offsets[idx]
         end = self.offsets[idx+1]
         return self.components[start:end], self.values[start:end]
 
     def search(self, q_components, q_values, k):
-        """Find top-k nearest neighbors using dot product similarity"""
+        """
+        Performs a brute-force search to find the K-nearest neighbors (KNN) of the queried vector.
+        This method scans the entire dataset to find the K-nearest neighbors of the queried vector.
+        It computes the *dot product* between the queried vector and each vector in the dataset and returns
+        the indices of the K-nearest neighbors along with their distances.
+        
+        Returns:
+        A vector containing tuples of distances and indices of the K-nearest neighbors, sorted by decreasing distance.
+        """ 
         # Convert query to dense vector
         query = np.zeros(self.d, dtype=np.float32)
         query[q_components] = q_values
@@ -93,30 +108,58 @@ class SparseDataset:
     
     
     def len(self):
+        """
+        Returns the number of vectors in the dataset.
+        """
         return self.n_vecs
     
     
     def dim(self):
+        """
+        Returns the number of components of the dataset, i.e., it returns one plus the ID of the largest component.
+        """
         return self.d
     
     
     def nnz(self):
+        """
+        Returns the number of non-zero components in the dataset.
+        This function returns the total count of non-zero components across all vectors in the dataset.
+        """
         return len(self.components)
     
     
     def quantize_f16(self):
-        """Convert values to float16 and return a new SparseDataset instance."""
+        """
+        Convert values to float16 and return a new SparseDataset instance.
+        """
         values_f16 = self.values.astype(np.float16)  # Convert values to float16
         return SparseDataset(self.n_vecs, self.d, self.offsets, self.components, values_f16)
     
     
     def vector_len(self, id: int) -> int:
+        """
+        This method returns the length of the vector with the specified index in the dataset.
+        
+        # Returns:
+        
+        Returns the length of the vector with the specified index.
+     
+        """
         if id >= self.n_vecs:
                 raise IndexError(f"ID {id} out of range for dataset with {self.n_vecs} vectors")
         return self.offsets[id + 1] - self.offsets[id]
     
     
     def vector_offset(self, id: int) -> int:
+        """
+        This method returns the offset of the vector with the specified index in the dataset.
+        The offset represents the starting index of the vector within the internal storage.
+        
+        # Returns:
+        
+        the offset of the vector with the specified index.
+        """
         if id >= self.n_vecs:
             raise IndexError(f"ID {id} out of range for dataset with {self.n_vecs} vectors")
         return self.offsets[id]
@@ -124,6 +167,14 @@ class SparseDataset:
     
     
     def offset_to_id(self, offset: int) -> int:
+        """
+        Converts the `offset` of a vector within the dataset to its id, i.e., the position
+        of the vector within the dataset.
+        
+        # Returns:
+        
+        """
+        
         # Use binary search to find where this offset would be inserted
         index = bisect.bisect_left(self.offsets, offset)
         

@@ -121,102 +121,6 @@ def maintains_heap_property(heap: HeapFaiss) -> bool:
 # print(heap.top())
 # assert maintains_heap_property(heap) > 0, f"It doesn't maintain the heap property"
 
-
-class OnlineTopKSelector(HeapFaiss):
-    def __init__(self, k):
-        # Call the parent class's constructor
-        super().__init__(k)
-        
-    def __len__(self):
-        super().__len__()
-    
-    def len(self):
-        return super().__len__()
-
-    def push(self, distance):
-        """
-        Pushes a new item `distance` with the current timestamp.
-        If the data structure has less than k distances, the current one is inserted.
-        Otherwise, the current one replaces the largest distance stored so far, if it is smaller.
-
-        Parameters:
-        - distance (float): The distance value to insert.
-        """
-        # if len(self.distances) < self.k:    
-        #     heappush(self.distances, (distance, self.timestamp))
-        # else:
-        #     heappushpop(self.distances, (distance, self.timestamp))
-        # self.timestamp += 1
-        if self.timestamp < self.k:
-            self.add(distance=distance, id=self.timestamp)
-            self.timestamp += 1
-            return
-        
-        if distance < self.top() :
-            self.replace_top(distance=distance, id=self.timestamp)
-            
-        self.timestamp += 1
-        
-
-    def push_with_id(self, distance, id):
-        """
-        Pushes a new item `distance` with a specified `id`.
-        If the data structure has less than k distances, the current one is inserted.
-        Otherwise, the current one replaces the largest distance stored so far, if it is smaller.
-
-        Parameters:
-        - distance (float): The distance value to insert.
-        - id (int): The associated identifier.
-        """
-        # if len(self.distances) < self.k:
-        #     heappush(self.distances, (distance, id))
-        # else:
-        #     heappushpop(self.distances, (distance, id))
-        if self.timestamp < self.k:
-            self.add(distance=distance, id=id)
-            self.timestamp += 1
-            return
-        
-        if distance < self.top() :
-            self.replace_top(distance=distance, id=id)
-            
-        self.timestamp += 1
-      
-      
-####################################################################################################################################
-##  This method is not necessery for the implementation in Python                                                                 ##
-##  Check if that's okay with the professor                                                                                      ##
-####################################################################################################################################
-    
-    # def extend(self, distances):
-        # return None
-        
-        
-    def topk(self):
-        """
-        Returns the top-k distances and their timestamps.
-        The method returns these top-k distances as a sorted (by decreasing distance) list of pairs.
-
-        Returns:
-        - list of tuples: Sorted list of (distance, id) pairs.
-        """
-        # for x in zip(self.distances, self.ids):
-        #     print(x)
-        x = list(zip(self.distances, self.ids))
-        x.sort()
-        # print(x)
-        return x[:self.k]
-    
-#         # Example Usage:
-# selector = OnlineTopKSelector(k=3)
-# selector.push(2.0)
-# selector.push(3.0)
-# selector.push(4.0)
-# selector.push(1.0)
-
-# print("Top-k:", selector.topk())  # Should return top-3 smallest distances
-# assert maintains_heap_property(selector), "it DOESNT maintain the heap property"
-    
     
 class TestHeapFaiss(unittest.TestCase):
     
@@ -243,12 +147,6 @@ class TestHeapFaiss(unittest.TestCase):
         self.assertEqual(heap.k, 10)
         self.assertEqual(heap.timestamp, 0)
      
-     
-     
-####################################################################################################################################
-##  This method is not necessery for the implementation in Python                                                                 ##
-##  Check if that's okay witht the professor                                                                                      ##
-####################################################################################################################################
 
     # def test_non_sequential_push():
          
@@ -268,12 +166,7 @@ class TestHeapFaiss(unittest.TestCase):
         All pushed distances should be present in the results in ascending order with their indices.
         """
         
-####################################################################################################################################
-##  This method is not necessery for the implementation in Python                                                                 ##
-##  Check if that's okay witht the professor                                                                                      ##
-####################################################################################################################################
 
-        
         """        
         Tests the `HeapFaiss`'s ability to handle multiple distances using the `extend` method.
 
