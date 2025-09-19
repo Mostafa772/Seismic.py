@@ -103,7 +103,6 @@ Please follow the coding guidelines and include tests for new features or optimi
 For questions, suggestions, or further discussions, please reach out to:
 
 - **Mostafa Eid:** [mostafa2222.me@gmail.com](mailto:mostafa2222.me@gmail.com)
-- **GitHub:** [Mostafa772](https://github.com/Mostafa772)
 
 ---
 
